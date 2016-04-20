@@ -1,0 +1,1 @@
+# The error message tells me that either 'shoes' was not defined or that it is in another scope where we are not able to access it.
