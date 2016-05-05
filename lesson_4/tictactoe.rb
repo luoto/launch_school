@@ -13,8 +13,8 @@ def prompt(message)
 end
 
 def joinor(array, delimiter=', ', conjunction='or')
-  new_array = array.slice(0..-2)
-  new_array.join(delimiter) + "#{delimiter}#{conjunction} #{array.last}"
+  array[-1] = "#{conjunction} #{array.last}" if array.size > 1
+  array.join(delimiter)
 end
 
 # rubocop:disable Metrics/AbcSize
