@@ -15,7 +15,7 @@ def prompt(message)
   puts "> #{message}"
 end
 
-def joinor(array, delimiter=', ', conjunction='or')
+def joinor(array, delimiter = ', ', conjunction = 'or')
   array[-1] = "#{conjunction} #{array.last}" if array.size > 1
   array.join(delimiter)
 end
@@ -63,13 +63,13 @@ def player_places_piece!(board)
   board[square] = PLAYER_MAKER
 end
 
-# rubocop:disable ConditionalAssignment
+# rubocop:disable Style/ConditionalAssignment
 def computer_places_piece!(board)
   # pick winning move
-  if !find_at_risk_square(board, COMPUTER_MARKER, PLAYER_MAKER).nil?
+  if find_at_risk_square(board, COMPUTER_MARKER, PLAYER_MAKER)
     square = find_at_risk_square(board, COMPUTER_MARKER, PLAYER_MAKER)
   # defend
-  elsif !find_at_risk_square(board, PLAYER_MAKER, COMPUTER_MARKER).nil?
+  elsif find_at_risk_square(board, PLAYER_MAKER, COMPUTER_MARKER)
     square = find_at_risk_square(board, PLAYER_MAKER, COMPUTER_MARKER)
   # pick square #5
   elsif board[5] == INITIAL_MARKER
@@ -80,7 +80,7 @@ def computer_places_piece!(board)
   end
   board[square] = COMPUTER_MARKER
 end
-# rubocop:enable ConditionalAssignment
+# rubocop:enable Style/ConditionalAssignment
 
 def board_full?(board)
   empty_squares(board).empty?
@@ -98,7 +98,7 @@ def detect_winner(board)
   nil
 end
 
-def find_at_risk_line(board, first=PLAYER_MAKER, second=COMPUTER_MARKER)
+def find_at_risk_line(board, first = PLAYER_MAKER, second = COMPUTER_MARKER)
   risk_line = []
   WINNING_LINES.each do |line|
     if board.values_at(*line).count(first) == 2 && board.values_at(*line).count(second) == 0
@@ -109,7 +109,7 @@ def find_at_risk_line(board, first=PLAYER_MAKER, second=COMPUTER_MARKER)
   risk_line
 end
 
-def find_at_risk_square(board, first=PLAYER_MAKER, second=COMPUTER_MARKER)
+def find_at_risk_square(board, first = PLAYER_MAKER, second = COMPUTER_MARKER)
   risk_line = find_at_risk_line(board, first, second)
   return nil if risk_line.nil?
   risk_line.each do |square|
@@ -130,9 +130,9 @@ end
 
 def alternate_player(current_player)
   if current_player == 'player'
-    return 'computer'
+    'computer'
   else
-    return 'player'
+    'player'
   end
 end
 
