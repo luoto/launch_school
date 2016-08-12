@@ -1,1 +1,0 @@
-# The first program, x prints 3 to the screen. In the second, there is an error because x was not defined in the same scope where puts was called.
