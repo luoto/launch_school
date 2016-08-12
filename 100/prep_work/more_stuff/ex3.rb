@@ -1,0 +1,1 @@
+# Exception handling allows programmers to gracefully handle and recover from errors.

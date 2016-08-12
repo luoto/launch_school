@@ -1,0 +1,1 @@
+# The error message tells me that the method calculate_product received too few arguments. It is expecting 2 but received 1.
