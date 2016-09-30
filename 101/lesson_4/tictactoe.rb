@@ -101,7 +101,7 @@ end
 def find_at_risk_line(board, first = PLAYER_MAKER, second = COMPUTER_MARKER)
   risk_line = []
   WINNING_LINES.each do |line|
-    if board.values_at(*line).count(first) == 2 && board.values_at(*line).count(second) == 0
+    if board.values_at(*line).count(first) == 2 && board.values_at(*line).count(second).zero?
       risk_line = line
       break
     end
@@ -157,7 +157,7 @@ loop do
       loop do
         prompt "Who to go first? (player or computer)"
         first = gets.chomp
-        if first.casecmp('computer') == 0 || first.casecmp('player') == 0
+        if first.casecmp('computer').zero? || first.casecmp('player').zero?
           current_player = first.downcase
           break
         else
