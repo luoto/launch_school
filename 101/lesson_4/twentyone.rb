@@ -173,7 +173,7 @@ loop do
     # player's turn
     while !bust?(player_hand)
       if prompt_player == 'hit'
-        prompt 'Hitting...'
+        puts 'Hitting...'
         hit!(player_hand, deck)
         display_user_screen(dealer_hand, player_hand)
       else
@@ -192,7 +192,7 @@ loop do
     # dealer's turn
     while !bust?(dealer_hand) && (get_hand_value(dealer_hand) < DEALER_LIMIT)
       prompt "(Dealer says hit me!)"
-      prompt "Hitting dealer..."
+      puts "Hitting dealer..."
       hit!(dealer_hand, deck)
       reveal_hand(dealer_hand, "Dealer")
     end
