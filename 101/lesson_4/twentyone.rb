@@ -190,7 +190,7 @@ loop do
     end
 
     # dealer's turn
-    while !bust?(dealer_hand) && (get_hand_value(dealer_hand) <= DEALER_LIMIT)
+    while !bust?(dealer_hand) && (get_hand_value(dealer_hand) < DEALER_LIMIT)
       prompt "(Dealer says hit me!)"
       prompt "Hitting dealer..."
       hit!(dealer_hand, deck)
