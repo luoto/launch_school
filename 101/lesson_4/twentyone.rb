@@ -5,6 +5,7 @@ SUITS = ['Hearts', 'Spades', 'Diamonds', 'Clubs'].freeze
 STARTING_CARDS = 2
 MAX_POINTS = 21
 DEALER_LIMIT = 17
+TOURNAMENT_MAX = 5
 
 def clear_screen
   system('clear') || system('cls')
@@ -12,6 +13,8 @@ end
 
 def display_intro
   puts "----- Welcome to Twenty One -----"
+  puts "|         First to Five         |"
+  puts "---------------------------------"
 end
 
 def display_outro(dealer_hand, player_hand, winner)
@@ -21,6 +24,22 @@ def display_outro(dealer_hand, player_hand, winner)
   puts "Dealer Hand Value: #{get_hand_value(dealer_hand)}"
   puts "Player Hand Value: #{get_hand_value(player_hand)}"
   puts "---------------------------------"
+end
+
+def display_user_screen(dealer_hand, player_hand)
+  prompt "Dealer has: #{dealer_hand[0][0]} and unknown card"
+  prompt reveal_hand(player_hand, "Player")
+end
+
+def display_results(dealer_hand, player_hand)
+  reveal_hand(dealer_hand, "Dealer")
+  reveal_hand(player_hand, "Player")
+  winner = determine_winner(dealer_hand, player_hand)
+  display_outro(dealer_hand, player_hand, winner)
+end
+
+def display_wins(dealer, player)
+  puts "*Dealer Wins: #{dealer} | Player Wins: #{player}*\n\n"
 end
 
 def prompt(msg)
@@ -43,7 +62,7 @@ def deal_card!(deck)
 end
 
 def initialize_hand!(hand, deck)
-  (1..STARTING_CARDS).each do |_|
+  STARTING_CARDS.times do |_|
     hit!(hand, deck)
   end
 end
@@ -76,7 +95,7 @@ def reveal_hand(hand, player)
       player_string += "#{card[0]}#{delimiter}"
     end
   end
-  prompt "#{player} has: #{player_string}"
+  prompt "#{player} has: #{player_string} [[value: #{get_hand_value(hand)}]]"
 end
 
 def get_hand_value(hand)
@@ -92,11 +111,9 @@ def get_hand_value(hand)
                11
              end
   end
-
   (1..ace_count).each do |_|
     value -= 10 if value > 21
   end
-
   value
 end
 
@@ -104,71 +121,110 @@ def bust?(hand)
   get_hand_value(hand) > 21
 end
 
-def compare_hands(hand1, hand2)
-  hand1_value = get_hand_value(hand1)
-  hand2_value = get_hand_value(hand2)
+def determine_winner(dealer, player)
+  dealer_value = get_hand_value(dealer)
+  player_value = get_hand_value(player)
 
-  if hand2_value > 21
-    1
-  elsif hand1_value > 21
-    0
-  elsif hand1_value > hand2_value
-    1
+  if dealer_value > 21
+    "Player"
+  elsif player_value > 21
+    "Dealer"
+  elsif dealer_value > player_value
+    "Dealer"
+  elsif player_value > dealer_value
+    "Player"
   else
-    -1
+    "Tie"
   end
 end
 
-def display_game_state(dealer_hand, player_hand)
-  prompt "Dealer has: #{dealer_hand[0][0]} and unknown card"
-  prompt reveal_hand(player_hand, "Player")
-end
-
-def display_results(dealer_hand, player_hand)
-  reveal_hand(dealer_hand, "Dealer")
-  reveal_hand(player_hand, "Player")
-  winner = compare_hands(dealer_hand, player_hand) > 0 ? "DEALER" : "PLAYER"
-  display_outro(dealer_hand, player_hand, winner)
+def play_again?
+  prompt "Play again? (y/n)"
+  loop do
+    input = gets.chomp.downcase
+    if input.start_with?('y')
+      return true
+    elsif input.start_with?('n')
+      return false
+    else
+      prompt "Please enter yes or no."
+    end
+  end
 end
 
 # main game
-clear_screen
-display_intro
+loop do
+  clear_screen
+  display_intro
 
-dealer_hand = []
-player_hand = []
+  dealer_wins = 0
+  player_wins = 0
 
-deck = initialize_deck RANKS, SUITS
-initialize_hand!(player_hand, deck)
-initialize_hand!(dealer_hand, deck)
+  loop do
+    dealer_hand = []
+    player_hand = []
 
-display_game_state(dealer_hand, player_hand)
+    deck = initialize_deck RANKS, SUITS
+    initialize_hand!(player_hand, deck)
+    initialize_hand!(dealer_hand, deck)
 
-# player's turn
-while !bust?(player_hand)
-  if prompt_player == 'hit'
-    hit!(player_hand, deck)
-    display_game_state(dealer_hand, player_hand)
-  else
-    break
+    display_user_screen(dealer_hand, player_hand)
+
+    # player's turn
+    while !bust?(player_hand)
+      if prompt_player == 'hit'
+        prompt 'Hitting...'
+        hit!(player_hand, deck)
+        display_user_screen(dealer_hand, player_hand)
+      else
+        break
+      end
+    end
+
+    if bust?(player_hand)
+      display_results(dealer_hand, player_hand)
+      dealer_wins += 1
+      display_wins(dealer_wins, player_wins)
+      break if player_wins == TOURNAMENT_MAX || dealer_wins == TOURNAMENT_MAX
+      next
+    end
+
+    # dealer's turn
+    while !bust?(dealer_hand) && (get_hand_value(dealer_hand) <= DEALER_LIMIT)
+      prompt "(Dealer says hit me!)"
+      prompt "Hitting dealer..."
+      hit!(dealer_hand, deck)
+      reveal_hand(dealer_hand, "Dealer")
+    end
+
+    prompt "\nRevealing hands..."
+
+    if bust?(dealer_hand)
+      display_results(dealer_hand, player_hand)
+      player_wins += 1
+      display_wins(dealer_wins, player_wins)
+      break if player_wins == TOURNAMENT_MAX || dealer_wins == TOURNAMENT_MAX
+      next
+    end
+
+    winner = determine_winner(dealer_hand, player_hand)
+    if winner == "Player"
+      player_wins += 1
+    elsif winner == "Dealer"
+      dealer_wins += 1
+    end
+
+    display_results(dealer_hand, player_hand)
+    display_wins(dealer_wins, player_wins)
+
+    break if player_wins == TOURNAMENT_MAX || dealer_wins == TOURNAMENT_MAX
   end
-end
 
-if bust?(player_hand)
-  display_results(dealer_hand, player_hand)
-  exit 0
-end
+  if player_wins == TOURNAMENT_MAX
+    prompt "PLAYER WINS THE TOURNAMENT!!!!"
+  else
+    prompt "DEALER WINS THE TOURNAMENT!!!!"
+  end
 
-# dealer's turn
-while !bust?(dealer_hand) && (get_hand_value(dealer_hand) <= DEALER_LIMIT)
-  prompt "(Dealer says hit me!)"
-  hit!(dealer_hand, deck)
-  reveal_hand(dealer_hand, "Dealer")
+  break unless play_again?
 end
-
-if bust?(dealer_hand)
-  display_results(dealer_hand, player_hand)
-  exit 0
-end
-
-display_results(dealer_hand, player_hand)
